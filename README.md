@@ -1,8 +1,8 @@
 # My Time Keeper Mobile
 
-This repo is a rewrite of the My Time Keeper application originally only on the iOS app store.
+This project is a rewrite of the My Time Keeper application originally only on the iOS app store.
 
-My Time Keeper is a simple time tracking app that allows for multiple timers. 
+My Time Keeper is a simple time tracking app that allows for multiple timers.
 
 Start the app at the beginning of your shift and keep track of how many hours you have worked in a pay period.
 
@@ -26,7 +26,7 @@ Once expo is installed, install the projects dependencies using
 
 `npm i`
 
-Once the dependencies are installed, start the expo server using 
+Once the dependencies are installed, start the expo server using
 
 `expo start`
 
