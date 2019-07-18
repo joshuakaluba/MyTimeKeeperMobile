@@ -5,6 +5,7 @@ yarn.lock
 keystore/*
 *google-services.json
 .expo/*
+.expo-shared/*
 npm-debug.*
 *.jks
 **/*.jks
