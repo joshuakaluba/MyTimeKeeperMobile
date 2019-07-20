@@ -6,6 +6,7 @@ keystore/*
 *google-services.json
 .expo/*
 .expo-shared/*
+secrets/*
 npm-debug.*
 *.jks
 **/*.jks
