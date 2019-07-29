@@ -15,6 +15,7 @@ export default class PrimaryFormInput extends React.Component {
                 mode={'outlined'}
                 label={this.props.label}
                 onChangeText={this.props.onChangeText}
+                value={this.props.value}
             />
         );
     }
