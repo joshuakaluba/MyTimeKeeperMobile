@@ -6,7 +6,7 @@ const iconDefault = '#000';
 const primary = '#3498db';
 const bodyBackgroundColor = '#f2f1ef';
 const scrollViewBackgroundColor = white;
-const mainViewBackgroudColor = "white";
+const mainViewBackgroundColor = "white";
 const tabHeaderBackgroundColor = '#3498db';
 const grey = '#2e3131';
 const defaultTextColor = '#2e3131';
@@ -21,7 +21,7 @@ export default Colors = {
   lightGrey,
   defaultTextColor,
   bodyBackgroundColor,
-  mainViewBackgroudColor,
+  mainViewBackgroundColor,
   scrollViewBackgroundColor,
   primary,
   iconDefault,
