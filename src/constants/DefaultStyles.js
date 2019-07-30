@@ -10,7 +10,7 @@ export default DefaultStyles = StyleSheet.create({
         padding: 10
     },
     mainView: {
-        backgroundColor: Colors.mainViewBackgroudColor,
+        backgroundColor: Colors.mainViewBackgroundColor,
         alignItems: 'center',
         borderRadius: 5,
         padding: 10,
