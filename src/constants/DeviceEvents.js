@@ -1,3 +1,4 @@
 export default DeviceEvents = {
-    updateLogActivities: 'My updateLogActivities'
+    updateLogActivities: 'UPDATE_LOG_ACTIVITIES',
+    updateActivities: 'UPDATE_ACTIVITIES'
 }
