@@ -11,5 +11,6 @@ npm-debug.*
 *.jks
 **/*.jks
 *.p12
+*/**/AdMobIdentifiers.js
 *.key
 *.mobileprovision
