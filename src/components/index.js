@@ -6,7 +6,7 @@ import ActivityInputDialog from './ActivityInputDialog';
 import ActivityStatusDialog from './ActivityStatusDialog';
 import ActivityLogList from './ActivityLogList';
 import ActivityLogListItem from './ActivityLogListItem';
-import BlinkingProgressText from './BlinkingProgressText';
+import InProgressText from './InProgressText';
 import CountingDurationText from './CountingDurationText';
 
 export {
@@ -18,6 +18,6 @@ export {
     ActivityStatusDialog,
     ActivityLogList,
     ActivityLogListItem,
-    BlinkingProgressText,
+    InProgressText,
     CountingDurationText
 }
