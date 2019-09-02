@@ -4,6 +4,7 @@ import Layout from './Layout';
 import ApplicationDefaultSettings from './ApplicationDefaultSettings';
 import DefaultStyles from './DefaultStyles';
 import DeviceEvents from './DeviceEvents';
+import AdMobIdentifiers from './AdMobIdentifiers';
 
 export {
     StringDictionary,
@@ -11,5 +12,6 @@ export {
     Layout,
     ApplicationDefaultSettings,
     DefaultStyles,
-    DeviceEvents
+    DeviceEvents,
+    AdMobIdentifiers
 }
