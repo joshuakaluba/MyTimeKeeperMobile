@@ -1,6 +1,4 @@
-import { SQLite } from 'expo-sqlite';
-
-const databaseFileName = 'db.db';
+const databaseFileName = 'db.mtp.db';
 
 export default SQLiteUtil = {
 
