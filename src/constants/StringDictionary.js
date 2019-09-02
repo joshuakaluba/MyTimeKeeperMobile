@@ -8,11 +8,14 @@ export default StringDictionary = {
     search: 'Search',
     cancel: 'Cancel',
     save: 'Save Changes',
+    completed: 'Completed',
     ok: 'Ok',
     startActivity: 'Start Activity',
     stopActivity: 'Stop Activity',
     edit: 'Edit',
+    filterByActivity: 'Filter By Activity',
     delete: 'Delete',
     deleteConfirmation: 'The following action will delete log history. Are you sure you want to delete activity: ',
+    deleteLogConfirmation: 'Are you sure you want to delete the following record?',
     inProgress: 'In Progress'
 }
