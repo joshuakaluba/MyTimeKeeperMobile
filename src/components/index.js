@@ -7,6 +7,7 @@ import ActivityStatusDialog from './ActivityStatusDialog';
 import ActivityLogList from './ActivityLogList';
 import ActivityLogListItem from './ActivityLogListItem';
 import BlinkingProgressText from './BlinkingProgressText';
+import CountingDurationText from './CountingDurationText';
 
 export {
     PrimaryFormInput,
@@ -17,5 +18,6 @@ export {
     ActivityStatusDialog,
     ActivityLogList,
     ActivityLogListItem,
-    BlinkingProgressText
+    BlinkingProgressText,
+    CountingDurationText
 }
