@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import PropTypes from 'prop-types';
 import PrimaryButton from './PrimaryButton';
 import { Dialog, Portal } from 'react-native-paper';
 import { StringDictionary } from '../constants';
+import CountingDurationText from './CountingDurationText';
 
 export default class ActivityStatusDialog extends React.Component {
 
@@ -25,11 +26,19 @@ export default class ActivityStatusDialog extends React.Component {
                     visible={this.props.visible}
                     style={styles.dialogBody}
                     onDismiss={this._onDismiss}>
-                    <Dialog.Title >
+                    <Dialog.Title>
                         {this.props.activity.name}
                     </Dialog.Title>
                     <Dialog.Content>
-
+                        <View style={styles.dialogContent}>
+                            {
+                                this.props.activity.started === 1 ?
+                                    <CountingDurationText startTime={this.props.activity.latest_start_time} />
+                                    :
+                                    <Text>{''}</Text>
+                            }
+                            <Text>{this.props.activity.description}</Text>
+                        </View>
                     </Dialog.Content>
                     <Dialog.Actions style={styles.dialogActions}>
                         <PrimaryButton
@@ -48,6 +57,10 @@ const styles = StyleSheet.create({
         paddingBottom: 15
     },
     dialogActions: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    dialogContent: {
         justifyContent: 'center',
         alignItems: 'center'
     }
