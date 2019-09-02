@@ -16,7 +16,7 @@ export default class ActivityStatusDialog extends React.Component {
 
     _onDismiss = () => this.props.onDismiss();
 
-    _onPrimaryButtonPress = () => this.props.toggleActivityStarted();
+    _onPrimaryButtonPress = () => this.props.toggleActivityStarted(this.props.activity);
 
     render() {
         return (
