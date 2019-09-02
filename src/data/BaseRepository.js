@@ -15,6 +15,7 @@ export default class BaseRepository {
                         `name` TEXT, \
                         `description` TEXT, \
                         `started` INTEGER, \
+                        `most_recent_log_id` TEXT, \
                         `latest_start_time` TEXT \
                     );';
 
@@ -23,6 +24,7 @@ export default class BaseRepository {
                         `start_time`	TEXT, \
                         `end_time`	TEXT, \
                         `completed`	INTEGER NOT NULL, \
+                        `most_recent_log_id` TEXT, \
                         `activity_id`	INTEGER NOT NULL, \
                         FOREIGN KEY(activity_id) REFERENCES Activities(id) \
                     );';
@@ -34,7 +36,6 @@ export default class BaseRepository {
     }
 
     handleDatabaseError = (error) => {
-        console.log(error);
         Lib.showError(error);
     }
 }
