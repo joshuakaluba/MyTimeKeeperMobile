@@ -39,7 +39,7 @@ export default class CountingDurationText extends React.Component {
 
 const styles = StyleSheet.create({
     inProgressText: {
-        color: Colors.primary,
+        color: Colors.danger,
         fontWeight: 'bold',
         paddingTop: 5,
         fontSize: 13
