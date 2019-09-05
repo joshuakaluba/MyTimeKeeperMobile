@@ -5,6 +5,8 @@ import { Menu, Divider } from 'react-native-paper';
 import { ListItem, Body, Right, Text } from 'native-base';
 import * as Icon from '@expo/vector-icons'
 import { StringDictionary, Colors } from '../constants';
+import InProgressText from './InProgressText';
+import CountingDurationText from './CountingDurationText';
 
 export default class ActivityListItem extends React.Component {
 
@@ -34,8 +36,8 @@ export default class ActivityListItem extends React.Component {
         this._closeMenu();
     };
 
-    _onToggleActivityStarted = () => {
-        this.props.onToggleActivityStarted(this.props.activity);
+    _onToggleActivityStarted = async () => {
+        await this.props.onToggleActivityStarted(this.props.activity);
         this._closeMenu();
     };
 
@@ -51,11 +53,19 @@ export default class ActivityListItem extends React.Component {
                     <Text>
                         {this.props.activity.name}
                     </Text>
+                    {
+                        this.props.activity.started === 1 ?
+                            <InProgressText text={StringDictionary.inProgress} /> :
+                            <Text note style={styles.inProgressText}>
+                                {''}
+                            </Text>
+                    }
+                    {
+                        this.props.activity.started === 1 &&
+                        <CountingDurationText startTime={this.props.activity.latest_start_time} />
+                    }
                     <Text note >
                         {this.props.activity.description}
-                    </Text>
-                    <Text note style={styles.inProgressText}>
-                        {this.props.activity.started === 1 ? StringDictionary.inProgress : ''}
                     </Text>
                 </Body>
                 <Right>
@@ -89,7 +99,8 @@ export default class ActivityListItem extends React.Component {
 
 const styles = StyleSheet.create({
     inProgressText: {
-        color: Colors.danger,
+        color: Colors.primary,
+        fontWeight: 'bold',
         paddingTop: 5
     }
 });
