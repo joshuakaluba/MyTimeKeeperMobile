@@ -48,7 +48,7 @@ export default Lib = {
             .replace('minute', 'm ')
             .replace('seconds', 's ')
             .replace('second', 's ')
-            .replace(',', '')
+            .replace(/,/g, '')
             .replace('and', '');
     },
 
