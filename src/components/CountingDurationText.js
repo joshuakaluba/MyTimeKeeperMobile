@@ -16,16 +16,24 @@ export default class CountingDurationText extends React.Component {
     componentWillMount() {
         this.isComponentMounted = true;
         interval = setInterval(() => {
-            if (this.isComponentMounted) {
-                const elapsed = Lib.getElapsedTime(this.props.startTime);
-                this.setState({ elapsed });
+            try {
+                if (this.isComponentMounted) {
+                    const elapsed = Lib.getElapsedTime(this.props.startTime);
+                    this.setState({ elapsed });
+                }
+            } catch (error) {
+                console.log(error);
             }
         }, 1000);
     }
 
     componentWillUnmount() {
-        clearInterval(this.interval);
-        this.isComponentMounted = false;
+        try {
+            this.isComponentMounted = false;
+            clearInterval(this.interval);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     render() {
