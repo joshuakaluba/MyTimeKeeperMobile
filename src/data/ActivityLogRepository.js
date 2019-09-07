@@ -6,7 +6,7 @@ import { SQLiteUtil } from "../utilities";
 const db = SQLite.openDatabase(SQLiteUtil.getDatabaseFileName());
 const defaultActivityLogStarted = 0;
 const defaultDate = new Date(-8640000000000000).toISOString();
-const defaultMoment = moment(defaultDate).toISOString();
+const defaultMoment = moment(defaultDate).utc().toISOString();
 
 export default class ActivityLogRepository extends BaseRepository {
   constructor() {
@@ -15,7 +15,8 @@ export default class ActivityLogRepository extends BaseRepository {
 
   getActivityLogs = (activityLogCallback, activityIdToFilterBy) => {
     let sql =
-      "SELECT ActivityLogs.id AS `id`, start_time, end_time, completed, activity_id, Activities.name AS `name`, Activities.description \
+      "SELECT ActivityLogs.id AS `id`, start_time, ActivityLogs.most_recent_log_id AS `most_recent_log_id`, \
+                    end_time, completed, activity_id, Activities.name AS `name`, Activities.description \
                     FROM`ActivityLogs` \
                     INNER JOIN`Activities` ON Activities.id = ActivityLogs.activity_id ";
 
@@ -33,22 +34,25 @@ export default class ActivityLogRepository extends BaseRepository {
   };
 
   createActivityLog = (activityLog, successCallback) => {
-    const currentMoment = moment().toISOString();
+
+    console.log('ActivityLogRepository.createActivityLog() creating activity log', activityLog);
+
+    const currentMoment = moment().utc().toISOString();
     const params = [
       currentMoment,
       defaultMoment,
       defaultActivityLogStarted,
-      activityLog.activity_id
+      activityLog.activity_id,
+      activityLog.most_recent_log_id
     ];
 
-    const updateSql = `UPDATE ActivityLogs SET completed=1 WHERE activity_id=${
-      activityLog.activity_id
-    };`;
+    const updateSql = `UPDATE ActivityLogs SET completed=1 WHERE activity_id=${activityLog.activity_id};`;
     const insertSql =
-      "INSERT INTO `ActivityLogs` (`start_time`, `end_time`, `completed`, `activity_id`) VALUES (?, ?, ?, ?);";
+      "INSERT INTO `ActivityLogs` (`start_time`, `end_time`, `completed`, `activity_id`, `most_recent_log_id`) VALUES (?, ?, ?, ?, ?);";
+
     db.transaction(
       tx => {
-        tx.executeSql(updateSql, params);
+        tx.executeSql(updateSql);
         tx.executeSql(insertSql, params);
       },
       this.handleDatabaseError,
@@ -74,13 +78,10 @@ export default class ActivityLogRepository extends BaseRepository {
       successCallback != null && successCallback()
     );
   };
-  //update t1 set value1 = (select value2 from t2 where t2.id = t1.id) where t1.value1 = 0;
 
   completeActivityLog = (activity, successCallback) => {
     const currentMoment = moment().toISOString();
-
     const params = [currentMoment, 1, activity.id];
-
     const sql = `UPDATE ActivityLogs SET end_time=?, completed=? WHERE id=(SELECT id FROM ActivityLogs WHERE completed = 0 AND activity_id = ? LIMIT 1)`;
 
     db.transaction(
@@ -95,9 +96,15 @@ export default class ActivityLogRepository extends BaseRepository {
   deleteActivityLog = (activityLog, successCallback) => {
     const params = [activityLog.id];
     const sql = "DELETE FROM `ActivityLogs` WHERE `id` = ?;";
+    const updateSql = `UPDATE Activities SET started = 0, most_recent_log_id='' WHERE most_recent_log_id ='${activityLog.most_recent_log_id}'; `;
+
+    console.log('ActivityLogRepository.deleteActivityLog() update sql', updateSql);
+    console.log('ActivityLogRepository.deleteActivityLog() activity log', activityLog);
+
     db.transaction(
       tx => {
         tx.executeSql(sql, params);
+        tx.executeSql(updateSql);
       },
       this.handleDatabaseError,
       successCallback != null && successCallback()
