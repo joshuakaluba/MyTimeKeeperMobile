@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Text } from 'native-base';
 import { Colors } from '../constants';
 import { Lib } from '../utilities';
@@ -30,18 +30,33 @@ export default class CountingDurationText extends React.Component {
 
     render() {
         return (
-            <Text style={styles.inProgressText}>
-                {this.state.elapsed}
-            </Text>
+            <View>
+                {
+                    this.props.large ?
+                        <Text style={styles.inProgressTextLarge}>
+                            {this.state.elapsed}
+                        </Text>
+                        :
+                        <Text style={styles.inProgressTextSmall}>
+                            {this.state.elapsed}
+                        </Text>
+                }
+            </View>
         );
     }
 }
 
 const styles = StyleSheet.create({
-    inProgressText: {
+    inProgressTextSmall: {
         color: Colors.danger,
         fontWeight: 'bold',
         paddingTop: 5,
         fontSize: 13
+    },
+    inProgressTextLarge: {
+        color: Colors.black,
+        fontWeight: 'bold',
+        paddingTop: 5,
+        fontSize: 20
     }
 });
