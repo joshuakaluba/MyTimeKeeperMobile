@@ -7,22 +7,19 @@ import {
   Alert,
   DeviceEventEmitter
 } from "react-native";
-import moment from "moment";
 import * as Icon from "@expo/vector-icons";
 import { Col, Grid } from "react-native-easy-grid";
 import {
   Colors,
   StringDictionary,
   ApplicationDefaultSettings,
-  DeviceEvents
+  DeviceEvents,
+  AdMobIdentifiers
 } from "../constants";
-import { List, ListItem, Body, Right, Text } from "native-base";
-import {
-  ActivityList,
-  ActivityInputDialog,
-  ActivityStatusDialog
-} from "../components";
-import { ActivityRepository, ActivityLogRepository } from "../data";
+import { Dropdown } from 'react-native-material-dropdown';
+import { AdMobBanner, AdMobInterstitial } from "expo-ads-admob";
+import { ActivityLogList } from "../components";
+import { ActivityLogRepository, ActivityRepository } from "../data";
 
 export default class ActivitiesScreen extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -63,10 +60,12 @@ export default class ActivitiesScreen extends Component {
       description: "",
       latest_start_time: ""
     },
-    activities: []
+    activities: [],
+    dropDownActivities: []
   };
 
   activityLogRepository = new ActivityLogRepository();
+  activityRepository = new ActivityRepository();
 
   async componentWillMount() {
     this.props.navigation.setParams({
@@ -74,9 +73,11 @@ export default class ActivitiesScreen extends Component {
     });
 
     DeviceEventEmitter.addListener(DeviceEvents.updateLogActivities, () => {
+      this._getActivities();
       this._getActivityLogs();
     });
 
+    this._getActivities();
     this._getActivityLogs();
   }
 
@@ -91,14 +92,11 @@ export default class ActivitiesScreen extends Component {
       }
     });
 
-  _hideEditActivityDialog = () =>
-    this.setState({ showEditActivityDialog: false });
+  _hideEditActivityLogDialog = () => this.setState({ showEditActivityDialog: false });
 
-  _hideActivityStatusDialog = () =>
-    this.setState({ showActivityStatusDialog: false });
+  _hideActivityStatusDialog = () => this.setState({ showActivityStatusDialog: false });
 
-  _showAddNewActivityDialog = () =>
-    this.setState({ showNewActivityDialog: true });
+  _showAddNewActivityDialog = () => this.setState({ showNewActivityDialog: true });
 
   _getActivityLogs = () => {
     this.setState({ activityLogs: [], loading: true });
@@ -109,128 +107,125 @@ export default class ActivitiesScreen extends Component {
   };
 
   _updateActivityLogs = activityLogs => {
-    if (activityLogs.length > 0) {
-      this.setState({ activityLogs });
-    }
+    this.setState({ activityLogs, activityLogsClone: activityLogs });
+    console.log('ActivityLogsScreen._updateActivityLogs()', activityLogs);
   };
 
   _activityRefreshCallback = () => {
-    const getActivities = this._getActivityLogs.bind(this);
+    const getActivityLogs = this._getActivityLogs.bind(this);
 
     // TODO for some reason you need to wait before the
     // newly inserted activities can persist in storage
 
-    setTimeout(function() {
-      getActivities();
+    setTimeout(function () {
+      getActivityLogs();
     }, 500);
   };
 
-  _addNewActivity = () => {
-    this._hideNewActivityDialog();
-    const activity = this.state.newActivity;
-    this.activityRepository.createActivity(
-      activity,
-      this._activityRefreshCallback.bind(this)
-    );
+  _getActivities = () => {
+    this.setState({ activities: [], loading: true });
+    this.activityRepository.getActivities(this._updateActivities.bind(this));
+    this._endLoading();
   };
 
-  _editSelectedActivity = () => {
-    this._hideEditActivityDialog();
-    const activity = this.state.selectedActivity;
-    this.activityRepository.editActivity(
-      activity,
-      this._activityRefreshCallback.bind(this)
-    );
+  _updateActivities = activities => {
+    console.log(`ActivityLogsScreen._updateActivities()`, activities);
+    let dropDownActivities = [{ value: 'All Activities' }];
+    for (i = 0; i < activities.length; i++) {
+      const activity = activities[i];
+      dropDownActivities.push({ value: activity['name'], 'activity': activity });
+    }
+    this.setState({ activities, dropDownActivities });
   };
 
-  _selectActivity = activity => this.setState({ selectedActivity: activity });
 
-  _selectActivityItem = activity => {
-    this._selectActivity(activity);
+  _selectActivityLog = activityLog => this.setState({ selectedActivityLog: activityLog });
+
+  _selectActivityLogItem = activityLog => {
+    this._selectActivityLog(activityLog);
     this.setState({ showActivityStatusDialog: true });
   };
 
-  _editActivity = activity => {
-    this.setState({ showEditActivityDialog: true });
-    this._selectActivity(activity);
-  };
-
-  _deleteActivity = activity => {
-    this._selectActivity(activity);
-    const deleteConfirmed = this._deleteConfirmed.bind(this);
+  _deleteActivityLog = activityLog => {
+    this._selectActivityLog(activityLog);
+    const _deleteConfirmed = this._deleteConfirmed.bind(this);
     Alert.alert(
       StringDictionary.delete,
-      `${StringDictionary.deleteConfirmation}${activity.name}`,
+      StringDictionary.deleteLogConfirmation,
       [
         {
           text: StringDictionary.cancel,
-          onPress: () => console.log("Cancel Pressed"),
+          onPress: () => {/*do nothing*/ },
           style: "cancel"
         },
-        { text: StringDictionary.ok, onPress: deleteConfirmed }
+        { text: StringDictionary.ok, onPress: _deleteConfirmed }
       ],
       { cancelable: true }
     );
   };
 
   _deleteConfirmed = () => {
-    const activity = this.state.selectedActivity;
-    this.activityRepository.deleteActivity(
-      activity,
-      this._activityRefreshCallback.bind(this)
-    );
+    const activityLog = this.state.selectedActivityLog;
+    this.activityLogRepository.deleteActivityLog(activityLog, this._activityRefreshCallback.bind(this));
+
+    // TODO hack
+    setTimeout(function () {
+      DeviceEventEmitter.emit(DeviceEvents.updateActivities);
+    }, 500);
   };
 
-  _toggleActivityStarted = () => {
-    this._hideActivityStatusDialog();
-    const activity = this.state.selectedActivity;
-
-    if (activity.started === 0) {
-      activity.started = 1;
-      activity.latest_start_time = moment().toISOString();
-
-      this.activityRepository.editActivity(
-        activity,
-        this._activityRefreshCallback.bind(this)
-      );
-
-      const activityLog = {
-        activity_id: activity.id
-      };
-
-      this.activityLogRepository.createActivityLog(
-        activityLog,
-        this._activityRefreshCallback.bind(this)
-      );
-    } else {
-      // ending activity
-      activity.started = 0;
-      this.activityRepository.editActivity(
-        activity,
-        this._activityRefreshCallback.bind(this)
-      );
-      this._completeActivityLog(activity);
-
-      // Find incomplete log
-
-      // Complete log
+  _showInterstitialAd = async () => {
+    try {
+      if (AdMobIdentifiers.showAds) {
+        AdMobInterstitial.setAdUnitID(AdMobIdentifiers.interstitial);
+        AdMobInterstitial.setTestDeviceID("EMULATOR");
+        await AdMobInterstitial.requestAdAsync();
+        await AdMobInterstitial.showAdAsync();
+      }
+    } catch (error) {
+      //do nothing
     }
   };
 
-  _completeActivityLog = activity => {
-    this.activityLogRepository.completeActivityLog(
-      activity,
-      this._activityRefreshCallback.bind(this)
-    );
+  _dropDownSelectionChanged = (value, index) => {
+    console.log(`ActivityLogsScreen._dropDownSelectionChanged() - value: `, value);
+    console.log(`ActivityLogsScreen._dropDownSelectionChanged() - index: `, index);
 
-    this.activityLogRepository.getActivityLogs(this._activityRefreshCallback);
-    //update t1 set value1 = (select value2 from t2 where t2.id = t1.id) where t1.value1 = 0;
-  };
+    if (index === 0) {
+      const originalLogs = this.state.activityLogsClone;
+      this.setState({ activityLogs: originalLogs });
+      return;
+    }
+
+    const selectedActivity = this.state.dropDownActivities[index].activity;
+    console.log(`ActivityLogsScreen._dropDownSelectionChanged() -selected activity`, selectedActivity);
+    this._filterActivityLogsByActivity(selectedActivity);
+  }
+
+  _filterActivityLogsByActivity = (activity) => {
+    console.log(`ActivityLogsScreen._filterActivityLogsByActivity() -activity`, activity);
+
+    let activityLogs = [];
+
+    for (i = 0; i < this.state.activityLogsClone.length; i++) {
+      const activityLog = this.state.activityLogsClone[i];
+      if (activityLog.activity_id === activity.id) {
+        activityLogs.push(activityLog);
+      }
+    }
+
+    this.setState({ activityLogs });
+  }
 
   render() {
     return (
       <View style={styles.container}>
         <View style={[styles.box, styles.body]}>
+          <Dropdown
+            label={StringDictionary.filterByActivity}
+            onChangeText={this._dropDownSelectionChanged}
+            data={this.state.dropDownActivities}
+          />
           <ScrollView
             refreshControl={
               <RefreshControl
@@ -239,64 +234,25 @@ export default class ActivitiesScreen extends Component {
               />
             }
           >
-            <List>
-              {this.state.activityLogs.map(activityLog => (
-                <ListItem
-                  avatar
-                  onPress={() => {
-                    console.log(`on select`);
-                  }}
-                  key={activityLog.id}
-                >
-                  <Body>
-                    <Text>{activityLog.name}</Text>
-                    <Text note>
-                      {activityLog.completed !== 1
-                        ? StringDictionary.inProgress
-                        : ""}
-                    </Text>
-                  </Body>
-                  <Right>
-                    {/*
-                                                                                            <Menu
-                                                visible={this.state.menuVisible}
-                                                onDismiss={this._closeMenu}
-                                                anchor={
-                                                    <Icon.Entypo
-                                                        name={'dots-three-vertical'}
-                                                        onPress={this._openMenu}
-                                                        size={20}
-                                                    />
-                                                }>
-                                                <Menu.Item
-                                                    onPress={this._onToggleActivityStarted}
-                                                    title={this.props.activity.started === 1 ? StringDictionary.stopActivity : StringDictionary.startActivity} />
-                                                <Divider />
-                                                <Menu.Item
-                                                    onPress={this._onEdit}
-                                                    title={StringDictionary.edit} />
-                                                <Divider />
-                                                <Menu.Item
-                                                    onPress={this._onDelete}
-                                                    title={StringDictionary.delete} />
-                                            </Menu>
-                                                
-                                                */}
-
-                    <Text>
-                      {`${activityLog.start_time} \n \t ${
-                        activityLog.end_time
-                      }`}
-                    </Text>
-                  </Right>
-                </ListItem>
-              ))}
-            </List>
+            <ActivityLogList
+              activityLogs={this.state.activityLogs}
+              onSelect={this._selectActivityLogItem.bind(this)}
+              onDelete={this._deleteActivityLog.bind(this)}
+            />
           </ScrollView>
         </View>
-        <View style={[styles.box, styles.footer, { alignItems: "center" }]}>
-          <Text>Hello Ad Space</Text>
-        </View>
+        {
+          AdMobIdentifiers.showAds === true &&
+          <View style={[styles.box, styles.footer, { alignItems: "center" }]}>
+            <AdMobBanner
+              style={styles.bottomBanner}
+              bannerSize="smartBannerPortrait"
+              adUnitID={AdMobIdentifiers.banner}
+              testDeviceID="EMULATOR"
+              didFailToReceiveAdWithError={this._bannerError}
+            />
+          </View>
+        }
       </View>
     );
   }
@@ -312,22 +268,15 @@ const styles = StyleSheet.create({
   box: {
     flex: 1
   },
-  dialogBody: {
-    paddingBottom: 15
-  },
-  dialogActions: {
-    justifyContent: "center",
-    alignItems: "center"
-  },
-  grid: {
-    paddingLeft: 5,
-    paddingRight: 5
+  bottomBanner: {
+    position: "absolute",
+    bottom: 0
   },
   body: {
     flex: 10
   },
   footer: {
-    flex: 1.5,
+    flex: 1,
     paddingBottom: 10,
     marginTop: "auto"
   }
