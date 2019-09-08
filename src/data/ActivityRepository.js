@@ -13,7 +13,7 @@ export default class ActivityRepository extends BaseRepository {
     }
 
     getActivities = (callBackActivities) => {
-        const sql = 'SELECT `id`, `name`, `description`, `started`, `latest_start_time` FROM Activities ORDER BY date(`latest_start_time`) DESC;';
+        const sql = 'SELECT `id`, `name`, `description`, `started`, `latest_start_time`, `most_recent_log_id` FROM Activities ORDER BY date(`latest_start_time`) DESC;';
         db.transaction(tx => {
             tx.executeSql(
                 sql, [],
@@ -23,24 +23,31 @@ export default class ActivityRepository extends BaseRepository {
     }
 
     createActivity = (activity, successCallback) => {
-        const params = [activity.name, activity.description, defaultActivityStarted, defaultMoment];
-        const sql = 'INSERT INTO `Activities` (`name`, `description`, `started`, `latest_start_time`) VALUES (?, ?, ?, ?);';
+        const params = [activity.name, activity.description, defaultActivityStarted, defaultMoment, ''];
+        const sql = 'INSERT INTO `Activities` (`name`, `description`, `started`,\
+                     `latest_start_time`, `most_recent_log_id`) VALUES (?, ?, ?, ?, ?);';
         db.transaction(
-            tx => {
-                tx.executeSql(sql, params);
-            },
+            tx => { tx.executeSql(sql, params); },
             this.handleDatabaseError,
             successCallback != null && successCallback()
         );
     }
 
     editActivity = (activity, successCallback) => {
-        const params = [activity.name, activity.description, activity.started, activity.latest_start_time, activity.id];
-        const sql = 'UPDATE `Activities` SET `name`=?, `description`=?, `started`=?, `latest_start_time`=? WHERE id=?'
+
+        console.log('ActivityRepository.editActivity() - editing activity', activity);
+        const params = [
+            activity.name,
+            activity.description,
+            activity.started,
+            activity.latest_start_time,
+            activity.most_recent_log_id,
+            activity.id];
+
+        const sql = `UPDATE Activities SET name=?, description=?, started=?, latest_start_time=?, most_recent_log_id=? WHERE id=?;`;
+
         db.transaction(
-            tx => {
-                tx.executeSql(sql, params);
-            },
+            tx => { tx.executeSql(sql, params); },
             this.handleDatabaseError,
             successCallback != null && successCallback()
         );
@@ -50,9 +57,7 @@ export default class ActivityRepository extends BaseRepository {
         const params = [activity.id];
         const sql = 'DELETE FROM `Activities` WHERE `id` = ?;';
         db.transaction(
-            tx => {
-                tx.executeSql(sql, params);
-            },
+            tx => { tx.executeSql(sql, params); },
             this.handleDatabaseError,
             successCallback != null && successCallback()
         );

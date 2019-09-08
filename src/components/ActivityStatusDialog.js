@@ -33,7 +33,7 @@ export default class ActivityStatusDialog extends React.Component {
                         <View style={styles.dialogContent}>
                             {
                                 this.props.activity.started === 1 ?
-                                    <CountingDurationText startTime={this.props.activity.latest_start_time} />
+                                    <CountingDurationText startTime={this.props.activity.latest_start_time} large />
                                     :
                                     <Text>{''}</Text>
                             }
