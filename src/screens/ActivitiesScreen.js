@@ -5,6 +5,7 @@ import {
     ScrollView,
     RefreshControl,
     Alert,
+    Text,
     DeviceEventEmitter
 } from "react-native";
 import moment from "moment";
@@ -20,7 +21,7 @@ import {
 import {
     ActivityList,
     ActivityInputDialog,
-    ActivityStatusDialog
+    ActivityStatusDialog, PrimaryButton
 } from "../components";
 import { AdMobBanner, AdMobInterstitial } from "expo-ads-admob";
 import { ActivityRepository, ActivityLogRepository } from "../data";
@@ -253,13 +254,28 @@ export default class ActivitiesScreen extends Component {
                             />
                         }
                     >
-                        <ActivityList
-                            activities={this.state.activities}
-                            onSelect={this._selectActivityItem.bind(this)}
-                            onEdit={this._editActivity.bind(this)}
-                            onDelete={this._deleteActivity.bind(this)}
-                            onToggleActivityStarted={this._toggleActivityStarted.bind(this)}
-                        />
+                        {
+                            this.state.activities && this.state.activities.length > 0 ?
+                                <ActivityList
+                                    activities={this.state.activities}
+                                    onSelect={this._selectActivityItem.bind(this)}
+                                    onEdit={this._editActivity.bind(this)}
+                                    onDelete={this._deleteActivity.bind(this)}
+                                    onToggleActivityStarted={this._toggleActivityStarted.bind(this)}
+                                />
+                                :
+                                <View style={styles.card}>
+                                    <Icon.Entypo
+                                        name={"emoji-sad"}
+                                        size={35}
+                                        color={Colors.lightGrey}
+                                    />
+                                    <Text style={styles.noActivities}>You currently have no activities</Text>
+                                    <PrimaryButton
+                                        onPress={() => { this._showAddNewActivityDialog(); }}
+                                        text={StringDictionary.addNewActivity} />
+                                </View>
+                        }
                     </ScrollView>
                 </View>
                 {
@@ -336,6 +352,24 @@ const styles = StyleSheet.create({
     },
     box: {
         flex: 1
+    },
+    card: {
+        margin: 15,
+        paddingTop: 50,
+        paddingBottom: 50,
+        backgroundColor: Colors.white,
+        justifyContent: "center",
+        alignItems: "center",
+        borderColor: Colors.lightGrey,
+        borderWidth: 2,
+        borderRadius: 12
+    },
+    noActivities: {
+        fontSize: 14,
+        fontWeight: "800",
+        marginTop: 30,
+        marginBottom: 30,
+        color: Colors.darkGrey
     },
     bottomBanner: {
         position: "absolute",
