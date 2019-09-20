@@ -12,13 +12,16 @@ const grey = '#2e3131';
 const defaultTextColor = '#2e3131';
 const success = '#3fc380'
 const lightGrey = "#bdc3c7";
+const darkGrey = "#586069";
 
 export default Colors = {
   tintColor,
   black,
+  white,
   danger,
   success,
   lightGrey,
+  darkGrey,
   defaultTextColor,
   bodyBackgroundColor,
   mainViewBackgroundColor,
