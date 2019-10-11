@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import PrimaryButton from './PrimaryButton';
 import PrimaryFormInput from './PrimaryFormInput';
 import { Dialog, Portal } from 'react-native-paper';
+import {StringDictionary} from '../constants';
 
 export default class ActivityInputDialog extends React.Component {
 
